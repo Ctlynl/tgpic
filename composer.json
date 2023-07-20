@@ -12,7 +12,8 @@
         "php": ">=7.4",
         "guzzlehttp/guzzle": "^7.7",
         "symfony/dom-crawler": "v5.4.25",
-        "ext-dom": "*"
+        "ext-dom": "*",
+        "ext-json": "*"
     },
     "autoload": {
         "psr-4": {
