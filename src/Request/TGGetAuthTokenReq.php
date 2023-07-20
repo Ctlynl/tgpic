@@ -37,7 +37,7 @@ class TGGetAuthTokenReq extends AbstractTGRequest
             throw new TGRegAnalysisException('获取authToken成功正则解析token失败' . $matches[1]);
         }
         // 写入authToken内容
-        file_put_contents($this->config->authTokenFilePathName, $authToken[1], \LOCK_EX);
+        filePutDataLock($this->config->authTokenFilePathName, $authToken[1]);
         return $authToken[1];
     }
 }

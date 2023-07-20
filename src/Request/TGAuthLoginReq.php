@@ -56,11 +56,10 @@ class TGAuthLoginReq extends AbstractTGRequest
     private function cookieContextFileAbsent(TGRequestParamInterface $requestParam)
     {
         // 合并请求参数
-        $multipart = $this->mergeParams($requestParam);
-
-        $response = $this->request('POST', '/login', ['multipart' => $multipart]);
+        $multipart = $this->mergeFromDataParams($requestParam);
 
         // 请求数据
+        $response = $this->request('POST', '/login', ['multipart' => $multipart]);
 
         // 获取操作内容
         $content = $response->getBody()->getContents();
@@ -79,6 +78,6 @@ class TGAuthLoginReq extends AbstractTGRequest
 
         /** 写入文件 @noinspection PhpDeprecationInspection */
         $cookieJar = $this->client->getConfig()['cookies'];
-        file_put_contents($this->config->cookieContextFilePathName, serialize($cookieJar), \LOCK_EX);
+        filePutDataLock($this->config->cookieContextFilePathName, serialize($cookieJar));
     }
 }

@@ -20,7 +20,7 @@ class TGImgUploadReq extends AbstractTGRequest
         $this->isRequestParamsNull($requestParam);
 
         // 合并请求参数
-        $multipart = $this->mergeParams($requestParam);
+        $multipart = $this->mergeFromDataParams($requestParam);
 
         // 上传图片
         $response = $this->request('POST', '/json', ['multipart' => $multipart]);

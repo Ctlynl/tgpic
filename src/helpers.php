@@ -26,3 +26,21 @@ if (!function_exists('unlinkFile')) {
         return unlink($filePath);
     }
 }
+
+if (!function_exists('filePutDataLock')) {
+
+    /**
+     * 写入文件
+     * @param string $filePath
+     * @param string $content
+     * @return false|int
+     */
+    function filePutDataLock(string $filePath, string $content)
+    {
+        $dir = dirname($filePath);
+        if (!file_exists($dir)) {
+            mkdir($dir, 0755, true);
+        }
+        return file_put_contents($filePath, $content, \LOCK_EX);
+    }
+}

@@ -46,7 +46,7 @@ abstract class AbstractTGRequest implements TGRequestInterface
      * @param TGRequestParamInterface $requestParam
      * @return array
      */
-    protected function mergeParams(TGRequestParamInterface $requestParam): array
+    protected function mergeFromDataParams(TGRequestParamInterface $requestParam): array
     {
         $params = array_merge($requestParam->getRequestData(), ['auth_token' => $this->authToken]);
         $multipart = [];
@@ -63,6 +63,15 @@ abstract class AbstractTGRequest implements TGRequestInterface
             ];
         }
         return $multipart;
+    }
+
+    /**
+     * @param TGRequestParamInterface $requestParam
+     * @return array
+     */
+    protected function mergeFromParams(TGRequestParamInterface $requestParam): array
+    {
+        return array_merge($requestParam->getRequestData(), ['auth_token' => $this->authToken]);
     }
 
     /**
