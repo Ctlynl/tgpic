@@ -87,13 +87,17 @@ abstract class AbstractTGRequest implements TGRequestInterface
             $statusCode = $exception->getResponse()->getStatusCode();
             $errMsg = $exception->getResponse()->getReasonPhrase();
             // 403代表请求被拒绝,或者权限访问此网页或链接已过期.删除cookie上下文及authToken重新获取
-            if ($statusCode === 403) {
-                unlinkFile($this->config->authTokenFilePathName);
-                unlinkFile($this->config->cookieContextFilePathName);
-                throw new TGHttpRequestException("[$statusCode][$errMsg]没有权限访问，认证已过期，请重试");
-            } else {
-                throw new TGHttpRequestException("[$statusCode]$errMsg", $statusCode, $exception);
+            switch ($statusCode) {
+                case 403:
+                case 500:
+                    $message = "[$statusCode][$errMsg]认证可能已过期，请重试";
+                    unlinkFile($this->config->authTokenFilePathName);
+                    unlinkFile($this->config->cookieContextFilePathName);
+                    break;
+                default:
+                    $message = "[$statusCode][$errMsg]";
             }
+            throw new TGHttpRequestException($message, $statusCode, $exception);
         } catch (GuzzleException $e) {
             throw new TGException('GuzzleException异常' . $e->getMessage(), $e->getCode(), $e);
         }
