@@ -7,6 +7,7 @@ use Ctlynl\Tgpic\Exception\TGHttpRequestException;
 use Ctlynl\Tgpic\Exception\TGInvalidParameterException;
 use Ctlynl\Tgpic\Params\TGRequestParamInterface;
 use Ctlynl\Tgpic\TGConfig;
+use Ctlynl\Tgpic\Traits\TGStorageFileTrait;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\Exception\RequestException;
@@ -17,6 +18,8 @@ use GuzzleHttp\Psr7\Utils;
  */
 abstract class AbstractTGRequest implements TGRequestInterface
 {
+
+    use TGStorageFileTrait;
 
     protected Client $client;
 
@@ -49,6 +52,36 @@ abstract class AbstractTGRequest implements TGRequestInterface
     protected function mergeFromDataParams(TGRequestParamInterface $requestParam): array
     {
         $params = array_merge($requestParam->getRequestData(), ['auth_token' => $this->authToken]);
+        return $this->handleFromData($params);
+    }
+
+    /**
+     * 合并/处理请求参数 array参数
+     * @param array $requestParam
+     * @return array
+     */
+    protected function mergeFromDataParamsByArray(array $requestParam): array
+    {
+        $params = array_merge($requestParam, ['auth_token' => $this->authToken]);
+        return $this->handleFromData($params);
+    }
+
+    /**
+     * @param TGRequestParamInterface $requestParam
+     * @return array
+     */
+    protected function mergeFromParams(TGRequestParamInterface $requestParam): array
+    {
+        return array_merge($requestParam->getRequestData(), ['auth_token' => $this->authToken]);
+    }
+
+    /**
+     * 处理from-data数据参数
+     * @param array $params
+     * @return array
+     */
+    private function handleFromData(array $params): array
+    {
         $multipart = [];
         foreach ($params as $key => $datum) {
             // 上传文件
@@ -63,15 +96,6 @@ abstract class AbstractTGRequest implements TGRequestInterface
             ];
         }
         return $multipart;
-    }
-
-    /**
-     * @param TGRequestParamInterface $requestParam
-     * @return array
-     */
-    protected function mergeFromParams(TGRequestParamInterface $requestParam): array
-    {
-        return array_merge($requestParam->getRequestData(), ['auth_token' => $this->authToken]);
     }
 
     /**
@@ -91,8 +115,9 @@ abstract class AbstractTGRequest implements TGRequestInterface
                 case 403:
                 case 500:
                     $message = "[$statusCode][$errMsg]认证可能已过期，请重试";
-                    unlinkFile($this->config->authTokenFilePathName);
-                    unlinkFile($this->config->cookieContextFilePathName);
+                    unlinkFile($this->getAuthTokenFileName($this->config));
+                    unlinkFile($this->getCookieFileName($this->config));
+                    unlinkFile($this->getUserIdFileName($this->config));
                     break;
                 default:
                     $message = "[$statusCode][$errMsg]";

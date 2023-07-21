@@ -7,8 +7,9 @@ use Ctlynl\Tgpic\Exception\TGConfigException;
 /**
  * @property mixed|string $baseUrl
  * @property mixed|array $globalHeaders
- * @property mixed|string $authTokenFilePathName
- * @property mixed|string $cookieContextFilePathName
+ * @property mixed|string $userStoragePath
+ * @property mixed|string $userName
+ * @property mixed|string $password
  * @\Ctlynl\Tgpic\TGConfig
  */
 class TGConfig
@@ -42,5 +43,13 @@ class TGConfig
     public function __set($name, $value)
     {
         $this->config[$name] = $value;
+    }
+
+    /**
+     * @return string
+     */
+    public function getUserStoragePath(): string
+    {
+        return rtrim($this->userStoragePath, DIRECTORY_SEPARATOR);
     }
 }

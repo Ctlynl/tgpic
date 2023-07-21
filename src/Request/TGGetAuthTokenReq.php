@@ -3,6 +3,7 @@
 namespace Ctlynl\Tgpic\Request;
 
 use Ctlynl\Tgpic\Exception\TGRegAnalysisException;
+use Ctlynl\Tgpic\Params\TGRequestParamInterface;
 
 /**
  * \Ctlynl\Tgpic\Request\TGGetAuthTokenReq
@@ -15,10 +16,11 @@ class TGGetAuthTokenReq extends AbstractTGRequest
      * @throws \Ctlynl\Tgpic\Exception\TGException
      * @throws \Ctlynl\Tgpic\Exception\TGHttpRequestException
      */
-    public function execute(\Ctlynl\Tgpic\Params\TGRequestParamInterface $requestParam = null)
+    public function execute(TGRequestParamInterface $requestParam = null)
     {
-        if (file_exists($this->config->authTokenFilePathName)) {
-            return file_get_contents($this->config->authTokenFilePathName);
+        $authTokenFilePath = $this->getAuthTokenFileName($this->config);
+        if (file_exists($authTokenFilePath)) {
+            return file_get_contents($authTokenFilePath);
         }
 
         $response = $this->request('GET', '/login');
@@ -37,7 +39,7 @@ class TGGetAuthTokenReq extends AbstractTGRequest
             throw new TGRegAnalysisException('获取authToken成功正则解析token失败' . $matches[1]);
         }
         // 写入authToken内容
-        filePutDataLock($this->config->authTokenFilePathName, $authToken[1]);
+        filePutDataLock($authTokenFilePath, $authToken[1]);
         return $authToken[1];
     }
 }

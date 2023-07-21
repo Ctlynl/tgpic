@@ -3,7 +3,6 @@
 namespace Ctlynl\Tgpic;
 
 use Ctlynl\Tgpic\Exception\TGInvalidParameterException;
-use Ctlynl\Tgpic\Params\TGAuthLoginParams;
 use Ctlynl\Tgpic\Params\TGRequestParamInterface;
 use Ctlynl\Tgpic\Request\TGRequestInterface;
 use GuzzleHttp\Client;
@@ -23,7 +22,7 @@ class TGClient
     /**
      * authToken
      */
-    private string $authToken = '';
+    private string $authToken;
 
     /**
      * 配置文件
@@ -45,6 +44,7 @@ class TGClient
         $this->config = $config;
         $this->assertRequiredOptions();
         $this->initHttpClient();
+        $this->authToken = $this->getAuthTokenReq();
     }
 
     /**
@@ -70,8 +70,9 @@ class TGClient
     {
         return [
             'baseUrl',
-            'authTokenFilePathName',
-            'cookieContextFilePathName'
+            'userName',
+            'password',
+            'userStoragePath',
         ];
     }
 
@@ -89,17 +90,11 @@ class TGClient
     }
 
     /**
-     * 获取authToken和登录
+     * 登录TG web 平台
      */
-    public function postLogin($loginNumber, $password)
+    public function postLoginTgWebPlatform()
     {
-        // 获取authToken
-        $this->authToken = $this->getAuthTokenReq();
-        // 判断是否已经存在cookie上下文和authToken
-        $paramsObject = new TGAuthLoginParams();
-        $paramsObject->setLoginSubject($loginNumber);
-        $paramsObject->setPassword($password);
-        $this->authLoginReq($paramsObject);
+        $this->authLoginReq();
     }
 
     /**
