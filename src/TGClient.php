@@ -14,6 +14,7 @@ use GuzzleHttp\Cookie\CookieJar;
  * @method string getAuthTokenReq(TGRequestParamInterface $requestParam = null)
  * @method string imgUploadReq(TGRequestParamInterface $requestParam = null)
  * @method array createAlbumReq(TGRequestParamInterface $requestParam = null)
+ * @method array deleteAlbumReq(TGRequestParamInterface $requestParam = null)
  * @method array getAlbumsReq(TGRequestParamInterface $requestParam = null)
  */
 class TGClient

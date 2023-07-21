@@ -3,7 +3,6 @@
 namespace Ctlynl\Tgpic\Request;
 
 use Ctlynl\Tgpic\Exception\TGException;
-use Ctlynl\Tgpic\Exception\TGJsonDecodeErrorException;
 use Ctlynl\Tgpic\Params\TGRequestParamInterface;
 
 /**
