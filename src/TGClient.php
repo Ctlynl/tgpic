@@ -106,7 +106,7 @@ class TGClient
     {
         $className = __NAMESPACE__ . '\\Request\\TG' . ucfirst($name);
         /**@var $fackes TGRequestInterface */
-        $objectFacade = new $className($this->httpClient, $this->config, $this->authToken);
+        $objectFacade = new $className($this->httpClient, $this->config, $this->authToken ?? '');
         return $objectFacade->execute(...$arguments);
     }
 }
