@@ -22,48 +22,56 @@ class TGGetAlbumsReq extends AbstractTGRequest
     public function execute(TGRequestParamInterface $requestParam = null): array
     {
         $this->isRequestParamsNull($requestParam);
-        $reqArray = $requestParam->getRequestData();
-        if (empty($reqArray['userName'])) {
-            throw new TGInvalidParameterException('用户名参数不能为空');
-        }
-
-        $uri = "{$reqArray['userName']}/albums";
-        $response = $this->request('GET', $uri);
-
+        $reqArray = $this->mergeFromParams($requestParam);
+        // 获取userid
+        $userId = $this->getUserId();
+        $reqArray['userid'] = $userId;
+        $reqArray['params_hidden']['userid'] = $userId;
+        // 获取数据内容
+        $response = $this->request('POST', '/json', ['form_params' => $reqArray]);
+        $arrayContent = tgJsonDecodeFun($response->getBody()->getContents());
         // 处理返回的html文本
-        $crawler = new Crawler($response->getBody()->getContents());
-        // 获取每个相册信息
-        $nodes = $crawler->filterXPath("//div[@id='list-most-recent']/div[@class='pad-content-listing']/div");
+        $crawler = new Crawler($arrayContent['html']);
         $albums = [];
-        /**@var $domElement \DOMElement */
-        foreach ($nodes as $domElement) {
-            array_push($albums, $this->domAttrToArray($domElement));
-        }
-        return $albums;
+        $crawler->filterXPath('//div[@data-type="album"]')->each(function (Crawler $node) use (&$albums) {
+            //div[@class="list-item-from font-size-small"] 精确匹配
+            //contains模糊匹配，表示选择 id 中包含“stu”的所有 div 节点。
+            $imgCount = $node->filterXPath('//div[contains(@class,"list-item-from")]')->text();
+            $albumValue = $this->domAttrToArray($node, $imgCount);
+            array_push($albums, $albumValue);
+        });
+        return [
+            'list' => $albums,
+            'request' => $arrayContent['request'],
+            'seekEnd' => $arrayContent['seekEnd']
+        ];
     }
 
     /**
      * dom属性转换数组
-     * @param \DOMElement $domElement
+     * @param Crawler $node
+     * @param string $imgCount
      * @return array
      */
-    private function domAttrToArray(\DOMElement $domElement): array
+    private function domAttrToArray(Crawler $node, string $imgCount): array
     {
         return [
-            // 每个相册缩略图的大小
-            'dataSize' => $domElement->getAttribute('data-size'),
             // 相册id
-            'albumId' => $domElement->getAttribute('data-id'),
+            'albumId' => $node->attr('data-id'),
             // 相册名称
-            'name' => $domElement->getAttribute('data-name'),
+            'name' => $node->attr('data-name'),
             // 相册描述
-            'desc' => $domElement->getAttribute('data-description'),
+            'desc' => $node->attr('data-description'),
             // 是否私有 public、private、password
-            'dataPrivacy' => $domElement->getAttribute('data-privacy'),
+            'dataPrivacy' => $node->attr('data-privacy'),
             // 相册路径
-            'urlShort' => $domElement->getAttribute('data-url-short'),
+            'urlShort' => $node->attr('data-url-short'),
+            // 每个相册缩略图的大小
+            'dataSize' => $imgCount != 0 ? $node->attr('data-size') : 0,
             // 缩略图路径
-            'dataThumb' => $domElement->getAttribute('data-thumb')
+            'dataThumb' => $imgCount != 0 ? $node->attr('data-thumb') : '',
+            // 图片数量
+            'imgCount' => $imgCount
         ];
     }
 }

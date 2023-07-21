@@ -26,10 +26,7 @@ class TGCreateAlbumReq extends AbstractTGRequest
 
         $jsonContent = $response->getBody()->getContents();
 
-        $content = json_decode($jsonContent, true);
-        if (json_last_error() !== 0) {
-            throw new TGJsonDecodeErrorException(json_last_error_msg());
-        }
+        $content = tgJsonDecodeFun($jsonContent);
         if (empty($content) || $content['status_code'] !== 200) {
             throw new TGException('response info error');
         }

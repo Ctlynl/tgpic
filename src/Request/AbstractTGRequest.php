@@ -127,4 +127,17 @@ abstract class AbstractTGRequest implements TGRequestInterface
             throw new TGException('GuzzleException异常' . $e->getMessage(), $e->getCode(), $e);
         }
     }
+
+    /**
+     * 获取用户id
+     * @throws TGException
+     */
+    protected function getUserId()
+    {
+        $userIdFilePath = $this->getUserIdFileName($this->config);
+        if (!file_exists($userIdFilePath)) {
+            throw new TGException('没有找到userId');
+        }
+        return file_get_contents($userIdFilePath);
+    }
 }

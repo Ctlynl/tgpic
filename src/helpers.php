@@ -44,3 +44,20 @@ if (!function_exists('filePutDataLock')) {
         return file_put_contents($filePath, $content, \LOCK_EX);
     }
 }
+
+if (!function_exists('tgJsonDecodeFun')) {
+
+    /**
+     * @param string $content
+     * @return mixed
+     * @throws \Ctlynl\Tgpic\Exception\TGJsonDecodeErrorException
+     */
+    function tgJsonDecodeFun(string $content)
+    {
+        $decode = json_decode($content, true);
+        if (json_last_error() != 0) {
+            throw new \Ctlynl\Tgpic\Exception\TGJsonDecodeErrorException(json_last_error_msg());
+        }
+        return $decode;
+    }
+}
